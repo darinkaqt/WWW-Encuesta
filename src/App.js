@@ -22,7 +22,11 @@ class App extends Component{
 				<div className="cardAux">
 					<Form>
 						<fieldset>
-							<legend>Buscar encuesta</legend>
+							<div className="icon-container">
+								<legend>Buscar encuesta</legend>
+								<img src="https://img.icons8.com/ios/50/000000/survey.png"/>
+								{/* <a href="https://icons8.com/icon/4194/survey">Survey icon by Icons8</a> */}
+							</div>
 							<Form.Group className="mb-3" controlId="formBasicEmail">
 								<Form.Label>ID</Form.Label>
 								<Form.Control type="text" placeholder="ID de encuesta a buscar" />
