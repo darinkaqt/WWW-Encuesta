@@ -27,3 +27,15 @@ body{
 	justify-content: space-around;
 	display: inline;
 }
+
+.cardConttainer{
+	display: flex;
+	align-items: center;
+}
+
+.cardFormat{
+	display: flex;
+	width: 50%;
+	justify-content: center;
+	align-items: center;
+}

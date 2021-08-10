@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Box from '@material-ui/core/Box';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Form, Button, ListGroup} from 'react-bootstrap'
+import {Form, Button, ListGroup, Card} from 'react-bootstrap'
 /* import {Card, CardTitle, CardMedia, CardText} from 'material-ui/core'; */
 
 
@@ -119,7 +119,7 @@ class App extends Component{
 						<fieldset>
 							<div className="icon-container">
 								<legend>Buscar encuesta</legend>
-								<img src="https://img.icons8.com/ios/50/000000/survey.png"/>
+								{/* <img src="https://img.icons8.com/ios/50/000000/survey.png"/> */}
 							</div>
 							<Form.Group className="mb-3">
 								<Form.Label>ID</Form.Label>
@@ -135,9 +135,16 @@ class App extends Component{
 								this.state.encuesta!==undefined ? (
 									<div className="row">
 										<h5>Encuesta solicitada</h5>
-										<div>
-											<p>Titulo: {this.state.encuesta.titulo}</p>
-											<p>Descripcion: {this.state.encuesta.descripcion}</p>
+										<div className="cardContainer">
+											<Card className="cardFormat">
+												<Card.Img variant="top" style={{width: "20%"}} src="https://img.icons8.com/ios/50/000000/survey.png" />
+												<Card.Body>
+													<Card.Title>Titulo: {this.state.encuesta.titulo}</Card.Title>
+													<Card.Text>
+														Descripcion: {this.state.encuesta.descripcion}
+													</Card.Text>
+												</Card.Body>
+											</Card>
 										</div>
 									</div>
 								):(
