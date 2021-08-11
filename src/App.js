@@ -2,9 +2,7 @@ import React, {Component} from 'react';
 import Box from '@material-ui/core/Box';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Form, Button, ListGroup, Card} from 'react-bootstrap'
-/* import {Card, CardTitle, CardMedia, CardText} from 'material-ui/core'; */
-
+import {Button, Card} from 'react-bootstrap'
 
 class App extends Component{
 
@@ -14,30 +12,37 @@ class App extends Component{
 			cargado1: false,
 			encuesta: null,
 			cargado2: false,
-			idEncuesta: null
+			idEncuesta: 0,
+			titleEncuesta: null,
+			descriptionEncuesta: null,
+			error1: 0,
+			error2: 0
 		};
 		this.handleEncuesta = this.handleEncuesta.bind(this);
 		this.handleFind = this.handleFind.bind(this);
+		this.handleTitle = this.handleTitle.bind(this);
+		this.handleDescription = this.handleDescription.bind(this);
+		this.handleAppend = this.handleAppend.bind(this);
 	}
 
-	//Métodos
+	//--------------//
+	// Métodos CRUD //
+	//--------------//
+
 	getEncuesta(id){
 		fetch("https://hr3o4t2e2i.execute-api.us-east-2.amazonaws.com/find/" + id)
-		// .then(res => res.json)
 		.then(async result => {
 			let aux = await result.json();
 			if (aux != null){
 				this.setState({
 					cargado1: true,
 					encuesta: aux.Item,
-					cargado2: false,
 				});
 				console.log(aux);
 			} else {
 				this.setState({
 					cargado1: true,
 					encuesta: null,
-					cargado2: false,
 				});
 				console.log(aux);
 			}
@@ -46,67 +51,90 @@ class App extends Component{
 			this.setState({
 				cargado1: false,
 				encuesta: null,
-				cargado2: false,
+				error1: 1
 			});
 			console.log(error);
 		})
 	}
 
-	// postEncuesta(obj){
-	// 	fetch("https://hr3o4t2e2i.execute-api.us-east-2.amazonaws.com/add", {
-	// 		method: 'POST',
-	// 		headers: {
-	// 			'Content-Type': 'application/json'
-	// 		},
-	// 		body: JSON.stringify(obj)
-	// 	})
-	// 	.then(res => res.json)
-	// 	.then(
-	// 		(result) => {
-	// 			this.setState({
-	// 				cargado1: false,
-	// 				cargado2: true,
-	// 			})
-	// 			console.log(result);
-	// 		},
-	// 		(error) => {
-	// 			this.setState({
-	// 				cargado1: false,
-	// 				encuesta: null,
-	// 				cargado2: false,
-	// 			});
-	// 			console.log(error);
-	// 		}
-	// 	)
-	// }
+	getAllEncuesta(){
+		fetch("https://hr3o4t2e2i.execute-api.us-east-2.amazonaws.com/view")
+		.then(async result => {
+			let enc = await result.json();
+			return enc.Count;
+		},
+		(error) => {
+			this.setState({
+				error2: 1
+			});
+			console.log(error);
+		})
+	}
 
-	// Imprimimos la encuesta elegida
-	// encuestas(){
-	// 	encuestas.map(enc=>{
-	// 		return(
-	// 		<div>
-	// 			<ListGroup>
-	// 				<ListGroup.Item>{enc.id}</ListGroup.Item>
-	// 				<ListGroup.Item>{enc.titulo}</ListGroup.Item>
-	// 				<ListGroup.Item>{enc.descripcion}</ListGroup.Item>
-	// 			</ListGroup>
-	// 		</div>
-	// 		)
-	// 	});
-	// 	return encuestas;
-	// }
+	addEncuesta(datos){
+		fetch("https://hr3o4t2e2i.execute-api.us-east-2.amazonaws.com/add", datos)
+		.then( async (resp) => {
+			const response = await resp.json();
+			console.log(response);
+			this.setState({
+				cargado2: true,
+			})
+		},
+		(error) => {
+			this.setState({
+				error2: 1,
+				cargado2: false,
+			});
+		})
+	}
+
+	//---------------------------------------//
+	// Funciones modificadoras de parametros //
+	//---------------------------------------//
 
 	// Guarda el id escrito en el campo de texto
 	handleEncuesta(e){
-		console.log(e.target.value);
         this.setState({idEncuesta: e.target.value});
     }
 
+	// Guarda el titulo escrito en el campo de texto
+	handleTitle(e){
+        this.setState({titleEncuesta: e.target.value});
+    }
+
+	// Guarda la descripcion escrita en el campo de texto
+	handleDescription(e){
+        this.setState({descriptionEncuesta: e.target.value});
+    }
+
+	//--------------------//
+	// Funciones de envio //
+	//--------------------//
+
 	// Busca el id dentro de dynamo
 	handleFind(){
-		if(this.state.idEncuesta != ""){
+		if(this.state.idEncuesta !== ""){
 			this.getEncuesta(this.state.idEncuesta);
-			console.log(this.state.encuesta);
+		} else {
+			this.setState({error1: 2});
+		}
+	}
+
+	// Agrega una nueva encuesta
+	handleAppend(){
+		if(this.state.titleEncuesta !== "" && this.state.descriptionEncuesta !== ""){
+			let payload = {
+				id: this.getAllEncuesta,
+				titulo: this.state.titleEncuesta,
+				descripcion: this.state.descriptionEncuesta
+			}
+			try {
+				this.addEncuesta(payload);
+			} catch (error) {
+				this.setState({error2: 1});
+			}
+		} else {
+			this.setState({error2: 2});
 		}
 	}
 
@@ -115,69 +143,69 @@ class App extends Component{
 			<Box display="flex">
 			<div className="container">
 				<div className="cardAux">
-					<Form>
-						<fieldset>
-							<div className="icon-container">
-								<legend>Buscar encuesta</legend>
-								{/* <img src="https://img.icons8.com/ios/50/000000/survey.png"/> */}
-							</div>
-							<Form.Group className="mb-3">
-								<Form.Label>ID</Form.Label>
-								<Form.Control type="text" onChange={this.handleEncuesta} placeholder="ID de encuesta a buscar" />
-							</Form.Group>
-							<Button onClick={this.handleFind} variant="outline-dark" type="button">
-								Buscar
-							</Button>
-							<br></br>
-							<br></br>
-							<br></br>
-							{this.state.cargado1 ? (
-								this.state.encuesta!==undefined ? (
-									<div className="row">
-										<h5>Encuesta solicitada</h5>
-										<div className="cardContainer">
-											<Card className="cardFormat">
-												<Card.Img variant="top" style={{width: "20%"}} src="https://img.icons8.com/ios/50/000000/survey.png" />
-												<Card.Body>
-													<Card.Title>Titulo: {this.state.encuesta.titulo}</Card.Title>
-													<Card.Text>
-														Descripcion: {this.state.encuesta.descripcion}
-													</Card.Text>
-												</Card.Body>
-											</Card>
-										</div>
-									</div>
-								):(
+					<h3>Buscar encuesta</h3>
+					<fieldset>
+						<div className="formCell-container">
+							<span className="icon-form">ID</span>
+							<input type="text" onChange={this.handleEncuesta} placeholder="ID de encuesta a buscar" />
+						</div>
+						<Button onClick={this.handleFind} variant="secondary" type="button">
+							Buscar
+						</Button>
+						<br></br>
+						<br></br>
+						<br></br>
+						{this.state.cargado1 ? (
+							this.state.encuesta!==undefined ? (
 								<div className="row">
 									<h5>Encuesta solicitada</h5>
-									<h6>La encuesta no existe</h6>
+									<div className="cardContainer">
+										<Card className="cardFormat">
+											<Card.Img variant="top" style={{width: "20%"}} src="https://img.icons8.com/ios/50/000000/survey.png" />
+											<Card.Body>
+												<Card.Title>Titulo: {this.state.encuesta.titulo}</Card.Title>
+												<Card.Text>
+													Descripcion: {this.state.encuesta.descripcion}
+												</Card.Text>
+											</Card.Body>
+										</Card>
+									</div>
 								</div>
-								)
 							):(
-								<p></p>
-							)}
-						</fieldset>
-					</Form>
+							<div className="row">
+								<h5>Encuesta solicitada</h5>
+								<h6>La encuesta no existe</h6>
+							</div>
+							)
+						):(
+							<p></p>
+						)}
+					</fieldset>
 				</div>
 
 				<div className="cardAux">
-					{/* <Form>
-						<fieldset>
-							<legend>Crear encuesta</legend>
-							<Form.Group className="mb-3" controlId="formBasicEmail">
-								<Form.Label>Titulo</Form.Label>
-								<Form.Control type="text" placeholder="Titulo de la encuesta" />
-							</Form.Group>
-
-							<Form.Group className="mb-3" controlId="formBasicPassword">
-								<Form.Label>Descripcion</Form.Label>
-								<Form.Control type="text" placeholder="Descripcion de la encuesta" />
-							</Form.Group>
-							<Button variant="dark" type="submit">
-								Crear
-							</Button>
-						</fieldset>
-					</Form> */}
+					<h3>Buscar encuesta</h3>
+					<fieldset>
+						<div className="formCell-container">
+							<span className="icon-form">T</span>
+							<input type="text" onChange={this.handleTitle} placeholder="Titulo de la encuesta" />
+						</div>
+						<div className="formCell-container">
+							<span className="icon-form">D</span>
+							<input type="text" onChange={this.handleDescription} placeholder="Descripcion de la encuesta" />
+						</div>
+						<Button onClick={this.handleAppend} variant="secondary" type="button">
+							Crear
+						</Button>
+					</fieldset>
+					<br></br>
+					<br></br>
+					<br></br>
+					{this.state.cargado2 ? (
+						<p>Agregado correctamente</p>
+					):(
+						<p></p>
+					)}
 				</div>
 			</div>
 		</Box>
