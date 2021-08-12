@@ -79,13 +79,11 @@ class App extends Component{
 
 	addEncuesta(datos){
 		fetch("https://hr3o4t2e2i.execute-api.us-east-2.amazonaws.com/add", {method:'POST', body: datos, headers:{'Content-Type': 'application/json'}})
-		.then( async (resp) => {
-			const response = await resp.id;
-			console.log(resp);
+		.then( (resp) => {
 			this.setState({
+				error2: 0,
 				cargado2: true
 			})
-/* 			console.log(response); */
 		},
 		(error) => {
 			this.setState({
@@ -107,12 +105,17 @@ class App extends Component{
 
 	// Guarda el titulo escrito en el campo de texto
 	handleTitle(e){
-        this.setState({titleEncuesta: e.target.value});
+        this.setState({
+			titleEncuesta: e.target.value,
+			cargado2: false});
     }
 
 	// Guarda la descripcion escrita en el campo de texto
 	handleDescription(e){
-        this.setState({descriptionEncuesta: e.target.value});
+        this.setState({
+			descriptionEncuesta: e.target.value,
+			cargado2: false
+		});
     }
 
 	//--------------------//
@@ -130,7 +133,7 @@ class App extends Component{
 
 	// Agrega una nueva encuesta
 	handleAppend(){
-			if(this.state.titleEncuesta !== "" && this.state.descriptionEncuesta !== ""){
+			if(this.state.titleEncuesta !== null && this.state.descriptionEncuesta !== null && this.state.titleEncuesta !== "" && this.state.descriptionEncuesta !== ""){
 				try {
 					const payload = {
 						id: this.state.idCount + 1,
@@ -144,7 +147,6 @@ class App extends Component{
 				} catch (error) {
 					this.setState({
 						error2: 1,
-						idCount: payload.id
 					});
 				}
 			} else {
@@ -161,7 +163,7 @@ class App extends Component{
 			<Box display="flex">
 				<div className="container">
 					<div className="cardAux">
-						<h3>Buscar encuesta {this.state.idCount}</h3>
+						<h3>Buscar encuesta</h3>
 						<fieldset>
 							<div className="formCell-container">
 								<span className="icon-form">ID</span>
@@ -221,10 +223,15 @@ class App extends Component{
 						<br></br>
 						<br></br>
 						<br></br>
-						{this.state.cargado2 ? (
-							<p>Agregado correctamente</p>
+						{(this.state.cargado2) ? (
+							<Alert variant="success">
+								<b>Agregado correctamente</b>
+							</Alert>
 						):(
-							<p></p>
+							this.state.error2 === 1 &&
+								<Alert variant="danger">
+									<b>No se pudo agregar la encuesta</b>
+								</Alert>
 						)}
 					</div>
 				</div>
