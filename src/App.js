@@ -17,13 +17,15 @@ class App extends Component{
 			titleEncuesta: null,
 			descriptionEncuesta: null,
 			error1: 0,
-			error2: 0
+			error2: 0,
+			idCount: 0
 		};
 		this.handleEncuesta = this.handleEncuesta.bind(this);
 		this.handleFind = this.handleFind.bind(this);
 		this.handleTitle = this.handleTitle.bind(this);
 		this.handleDescription = this.handleDescription.bind(this);
 		this.handleAppend = this.handleAppend.bind(this);
+		this.getAllEncuesta();
 	}
 
 	//--------------//
@@ -62,12 +64,10 @@ class App extends Component{
 		fetch("https://hr3o4t2e2i.execute-api.us-east-2.amazonaws.com/view")
 		.then(async result => {
 			let enc = await result.json();
-			const payload = {
-				id: enc.Count + 1,
-				titulo: this.state.titleEncuesta,
-				descripcion: this.state.descriptionEncuesta
-			}
-			return payload;
+			this.setState({
+				idCount: enc.Count
+			});
+			return enc.Count;
 		},
 		(error) => {
 			this.setState({
@@ -78,13 +78,14 @@ class App extends Component{
 	}
 
 	addEncuesta(datos){
-		fetch("https://hr3o4t2e2i.execute-api.us-east-2.amazonaws.com/add", {method:'PUT', body: JSON.stringify(datos)})
+		fetch("https://hr3o4t2e2i.execute-api.us-east-2.amazonaws.com/add", {method:'POST', body: datos, headers:{'Content-Type': 'application/json'}})
 		.then( async (resp) => {
-			const response = await resp.json();
-			console.log(response);
+			const response = await resp.id;
+			console.log(resp);
 			this.setState({
-				cargado2: true,
+				cargado2: true
 			})
+/* 			console.log(response); */
 		},
 		(error) => {
 			this.setState({
@@ -131,10 +132,20 @@ class App extends Component{
 	handleAppend(){
 			if(this.state.titleEncuesta !== "" && this.state.descriptionEncuesta !== ""){
 				try {
-					const auxiliar = this.getAllEncuesta();
-					this.addEncuesta(auxiliar);
+					const payload = {
+						id: this.state.idCount + 1,
+						titulo: this.state.titleEncuesta,
+						descripcion: this.state.descriptionEncuesta
+					}
+					this.setState({
+						idCount: payload.id,
+					})
+					this.addEncuesta(JSON.stringify(payload));
 				} catch (error) {
-					this.setState({error2: 1});
+					this.setState({
+						error2: 1,
+						idCount: payload.id
+					});
 				}
 			} else {
 				this.setState({error2: 2});
@@ -150,7 +161,7 @@ class App extends Component{
 			<Box display="flex">
 				<div className="container">
 					<div className="cardAux">
-						<h3>Buscar encuesta</h3>
+						<h3>Buscar encuesta {this.state.idCount}</h3>
 						<fieldset>
 							<div className="formCell-container">
 								<span className="icon-form">ID</span>
