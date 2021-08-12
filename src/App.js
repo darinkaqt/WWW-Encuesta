@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import Box from '@material-ui/core/Box';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Button, Card} from 'react-bootstrap'
+import {Button, Card, Alert} from 'react-bootstrap';
+import SearchIcon from '@material-ui/icons/Search';
 
 class App extends Component{
 
@@ -61,7 +62,12 @@ class App extends Component{
 		fetch("https://hr3o4t2e2i.execute-api.us-east-2.amazonaws.com/view")
 		.then(async result => {
 			let enc = await result.json();
-			return enc.Count;
+			const payload = {
+				id: enc.Count + 1,
+				titulo: this.state.titleEncuesta,
+				descripcion: this.state.descriptionEncuesta
+			}
+			return payload;
 		},
 		(error) => {
 			this.setState({
@@ -72,7 +78,7 @@ class App extends Component{
 	}
 
 	addEncuesta(datos){
-		fetch("https://hr3o4t2e2i.execute-api.us-east-2.amazonaws.com/add", datos)
+		fetch("https://hr3o4t2e2i.execute-api.us-east-2.amazonaws.com/add", {method:'PUT', body: JSON.stringify(datos)})
 		.then( async (resp) => {
 			const response = await resp.json();
 			console.log(response);
@@ -85,6 +91,7 @@ class App extends Component{
 				error2: 1,
 				cargado2: false,
 			});
+			console.log(error);
 		})
 	}
 
@@ -122,46 +129,46 @@ class App extends Component{
 
 	// Agrega una nueva encuesta
 	handleAppend(){
-		if(this.state.titleEncuesta !== "" && this.state.descriptionEncuesta !== ""){
-			let payload = {
-				id: this.getAllEncuesta,
-				titulo: this.state.titleEncuesta,
-				descripcion: this.state.descriptionEncuesta
+			if(this.state.titleEncuesta !== "" && this.state.descriptionEncuesta !== ""){
+				try {
+					const auxiliar = this.getAllEncuesta();
+					this.addEncuesta(auxiliar);
+				} catch (error) {
+					this.setState({error2: 1});
+				}
+			} else {
+				this.setState({error2: 2});
 			}
-			try {
-				this.addEncuesta(payload);
-			} catch (error) {
-				this.setState({error2: 1});
-			}
-		} else {
-			this.setState({error2: 2});
-		}
 	}
+
+	//--------//
+	// Render //
+	//--------//
 
 	render(){
 		return(
 			<Box display="flex">
-			<div className="container">
-				<div className="cardAux">
-					<h3>Buscar encuesta</h3>
-					<fieldset>
-						<div className="formCell-container">
-							<span className="icon-form">ID</span>
-							<input type="text" onChange={this.handleEncuesta} placeholder="ID de encuesta a buscar" />
-						</div>
-						<Button onClick={this.handleFind} variant="secondary" type="button">
-							Buscar
-						</Button>
-						<br></br>
-						<br></br>
-						<br></br>
-						{this.state.cargado1 ? (
-							this.state.encuesta!==undefined ? (
-								<div className="row">
-									<h5>Encuesta solicitada</h5>
-									<div className="cardContainer">
+				<div className="container">
+					<div className="cardAux">
+						<h3>Buscar encuesta</h3>
+						<fieldset>
+							<div className="formCell-container">
+								<span className="icon-form">ID</span>
+								<input type="text" onChange={this.handleEncuesta} placeholder="ID de encuesta a buscar" />
+							</div>
+							<button className="searchButton" onClick={this.handleFind} type="button">
+								<SearchIcon style={{ fill: '#C6C9CC' }}></SearchIcon>
+							</button>
+							<br></br>
+							<br></br>
+							<br></br>
+							{this.state.cargado1 ? (
+								this.state.encuesta!==undefined ? (
+									<div>
+										<h4>Encuesta solicitada</h4>
+										<div className="cardResponse">
 										<Card className="cardFormat">
-											<Card.Img variant="top" style={{width: "20%"}} src="https://img.icons8.com/ios/50/000000/survey.png" />
+											<Card.Img variant="top" className="cardImage" style={{width: "20%"}} src="https://img.icons8.com/ios/50/000000/survey.png" />
 											<Card.Body>
 												<Card.Title>Titulo: {this.state.encuesta.titulo}</Card.Title>
 												<Card.Text>
@@ -169,46 +176,48 @@ class App extends Component{
 												</Card.Text>
 											</Card.Body>
 										</Card>
+										</div>
 									</div>
+								):(
+								<div className="alertContainer">
+									<h4>Encuesta solicitada</h4>
+									<Alert variant="danger">
+										<b>La encuesta no existe</b>
+									</Alert>
 								</div>
+								)
 							):(
-							<div className="row">
-								<h5>Encuesta solicitada</h5>
-								<h6>La encuesta no existe</h6>
+								<p></p>
+							)}
+						</fieldset>
+					</div>
+
+					<div className="cardAux">
+						<h3>Crear encuesta</h3>
+						<fieldset>
+							<div className="formCell-container2">
+								<span className="icon-form">T</span>
+								<input type="text" onChange={this.handleTitle} placeholder="Título de la encuesta" />
 							</div>
-							)
+							<div className="formCell-container2">
+								<span className="icon-form">D</span>
+								<input type="text" onChange={this.handleDescription} placeholder="Descripción de la encuesta" />
+							</div>
+							<Button onClick={this.handleAppend} variant="secondary" type="button">
+								Crear
+							</Button>
+						</fieldset>
+						<br></br>
+						<br></br>
+						<br></br>
+						{this.state.cargado2 ? (
+							<p>Agregado correctamente</p>
 						):(
 							<p></p>
 						)}
-					</fieldset>
+					</div>
 				</div>
-
-				<div className="cardAux">
-					<h3>Buscar encuesta</h3>
-					<fieldset>
-						<div className="formCell-container">
-							<span className="icon-form">T</span>
-							<input type="text" onChange={this.handleTitle} placeholder="Titulo de la encuesta" />
-						</div>
-						<div className="formCell-container">
-							<span className="icon-form">D</span>
-							<input type="text" onChange={this.handleDescription} placeholder="Descripcion de la encuesta" />
-						</div>
-						<Button onClick={this.handleAppend} variant="secondary" type="button">
-							Crear
-						</Button>
-					</fieldset>
-					<br></br>
-					<br></br>
-					<br></br>
-					{this.state.cargado2 ? (
-						<p>Agregado correctamente</p>
-					):(
-						<p></p>
-					)}
-				</div>
-			</div>
-		</Box>
+			</Box>
 		);
 	}
 }

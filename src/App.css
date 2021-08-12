@@ -2,6 +2,20 @@
 :root{
 	--borde-gris: #BCBBBF;
 	--fondo-icon: #D8D7DD;
+	--fondo-boton: #6C757D;
+	--hover-boton: #5C636A;
+}
+
+/* FUENTES */
+@import url('https://fonts.googleapis.com/css2?family=Slabo+27px&family=Source+Sans+Pro:wght@700&display=swap');
+
+/*
+font-family: 'Source Sans Pro', sans-serif;
+font-family: 'Slabo 27px', serif;
+*/
+
+*{
+	font-family: 'Slabo 27px', serif;
 }
 
 body{
@@ -9,6 +23,10 @@ body{
 	margin: 0;
 	background-image: url("bg.jpg");
 	backdrop-filter: blur(2px);
+}
+
+input::placeholder{
+	font-size: 0.9em;
 }
 
 .container{
@@ -20,8 +38,9 @@ body{
 }
 
 .cardAux{
+	min-height: 30em;
+	min-width: 25em;
 	padding: 20px;
-	height: 90%;
 	width: 40%;
 	border-radius: 10px;
 	box-sizing: border-box;
@@ -34,21 +53,89 @@ body{
 	margin-bottom: 30px;
 }
 
+/* .centerRightCard{
+	display: inline-block;
+} */
+
+/*-------------------
+NOMBRE Y FORM
+-------------------*/
+
 .formCell-container{
 	display: inline-block;
 }
 
+.icon-form{
+	margin-top: 3px;
+	border: 1px solid var(--borde-gris);
+	border-right-width: 0px;
+	padding: 11px;
+	background-color: var(--fondo-icon);
+	border-radius: 10px 0 0 10px;
+	font-family: 'Source Sans Pro', sans-serif;
+	color: var(--fondo-boton);
+}
+
 .formCell-container input{
 	border: 1px solid var(--borde-gris);
-	padding: 10px;
+	padding: 9px;
+	border-radius: 0 10px 10px 0;
 }
 
-.icon-form{
+.formCell-container input:focus{
+	outline: none;
+}
+
+.formCell-container2{
+	display: block;
+	margin-bottom: 0.5em;
+}
+
+.formCell-container2 input{
 	border: 1px solid var(--borde-gris);
-	padding: 10px;
-	background-color: var(--fondo-icon);
+	padding: 9px;
+	border-radius: 0 10px 10px 0;
 }
 
-fieldset{
-	margin-top: 25px;
+.formCell-container2 input:focus{
+	outline: none;
+}
+
+/*-------------------
+BOTON
+-------------------*/
+
+.searchButton{
+	margin-left: 10px;
+	height: 40px;
+	border-radius: 50%;
+	background: var(--fondo-boton);
+	border: 1px solid var(--borde-gris);
+}
+
+.searchButton:hover{
+	background: var(--hover-boton);
+}
+
+/*-------------------
+CARD
+-------------------*/
+
+.cardFormat{
+    display: flex;
+	margin: 0 25%;
+    justify-content: center;
+    align-items: center;
+}
+
+.cardImage{
+    margin: 1em;
+}
+
+/*-------------------
+ALERTA
+-------------------*/
+
+.alertContainer{
+	margin: 0 2em;
 }
